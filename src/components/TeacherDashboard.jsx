@@ -45,7 +45,6 @@ export default function TeacherDashboard({ onViewStudent }) {
     setStatus('Importing...');
     try {
       const imported = await fetchGradesFromGitHubLink(importUrl);
-      // Ensure students exist and create grades entries (match by name)
       const currentStudents = [...students];
       const newGrades = [...grades];
       for (const row of imported) {
@@ -93,42 +92,8 @@ export default function TeacherDashboard({ onViewStudent }) {
 
       <section className="card">
         <h2>Import grades from GitHub</h2>
-        <p><small>Paste a GitHub blob/raw file URL of a CSV or JSON file. CSV should have headers: student/name, assignment, score, outOf (optional), date (optional).</small></p>
-        <form onSubmit={importFromGitHub}>
-          <input style={{ width: '70%' }} placeholder="https://github.com/owner/repo/blob/branch/path/file.csv" value={importUrl} onChange={e => setImportUrl(e.target.value)} />
-          <button style={{ marginLeft: 8 }} type="submit">Import</button>
-        </form>
-        <div style={{ marginTop: 8 }}>{status}</div>
+        
       </section>
-
-      <section className="card">
-        <h2>Manual grade entry</h2>
-        <form onSubmit={addGrade}>
-          <select value={gradeForm.studentId} onChange={e => setGradeForm({...gradeForm, studentId: e.target.value})}>
-            <option value="">-- select student --</option>
-            {students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-          </select>
-          <input type="number" placeholder="score" value={gradeForm.score} onChange={e => setGradeForm({...gradeForm, score: e.target.value})} style={{ marginLeft: 8, width: 100 }} />
-          <input type="number" placeholder="out of" value={gradeForm.outOf} onChange={e => setGradeForm({...gradeForm, outOf: e.target.value})} style={{ marginLeft: 8, width: 100 }} />
-          <button type="submit" style={{ marginLeft: 8 }}>Add Grade</button>
-        </form>
-      </section>
-
-      <section className="card">
-        <h2>Students</h2>
-        <ul>
-          {students.map(s => (
-            <li key={s.id} style={{ marginBottom: 6 }}>
-              <strong>{s.name}</strong>
-              <button style={{ marginLeft: 8 }} onClick={() => onViewStudent(s.id)}>View profile</button>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <div style={{ marginTop: 12 }}>
-        <button onClick={clearData} style={{ background:'#ffecec', borderColor:'#f5c2c2' }}>Clear all data</button>
-      </div>
     </div>
   );
 }

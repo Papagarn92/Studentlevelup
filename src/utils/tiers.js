@@ -1,4 +1,3 @@
-// deterministic grade -> tier mapping and item catalog
 export function gradeToTier(score) {
   if (score === null || score === undefined) return 'starter';
   if (score >= 95) return 'legendary';

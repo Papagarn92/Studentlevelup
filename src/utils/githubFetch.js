@@ -1,15 +1,10 @@
 import Papa from 'papaparse';
 
-/**
- * Convert a normal GitHub blob URL to a raw.githubusercontent.com URL.
- * If the input already looks like a raw URL, return as-is.
- */
 export function toRawGitHubUrl(url) {
   try {
     const u = new URL(url.trim());
     if (u.hostname === 'raw.githubusercontent.com') return u.href;
     if (u.hostname === 'github.com') {
-      // path: /owner/repo/blob/branch/path...
       const parts = u.pathname.split('/').filter(Boolean);
       if (parts.length >= 5 && parts[2] === 'blob') {
         const owner = parts[0], repo = parts[1], branch = parts[3];
@@ -23,30 +18,18 @@ export function toRawGitHubUrl(url) {
   }
 }
 
-/**
- * Fetches a file from GitHub raw URL (or converts a blob URL), then attempts to parse as CSV or JSON.
- * Returns array of grade objects with fields:
- *  - student (string)
- *  - assignment (string)
- *  - score (number)
- *  - outOf (number, optional)
- *  - date (ISO string, optional)
- */
 export async function fetchGradesFromGitHubLink(givenUrl) {
   const raw = toRawGitHubUrl(givenUrl) ?? givenUrl;
   const res = await fetch(raw);
   if (!res.ok) throw new Error(`Failed to fetch ${raw}: ${res.status}`);
   const text = await res.text();
-  // Try JSON first
   try {
     const j = JSON.parse(text);
     if (Array.isArray(j)) {
       return j.map(normalizeGradeObject).filter(Boolean);
     }
   } catch {
-    // not JSON — try CSV
   }
-  // CSV parse
   const parsed = Papa.parse(text, { header: true, skipEmptyLines: true, dynamicTyping: true });
   if (parsed && parsed.data && parsed.data.length) {
     return parsed.data.map(normalizeGradeObject).filter(Boolean);
@@ -55,7 +38,6 @@ export async function fetchGradesFromGitHubLink(givenUrl) {
 }
 
 function normalizeGradeObject(raw) {
-  // Accept multiple key names
   const student = raw.student ?? raw.name ?? raw.studentName ?? raw['Student'] ?? raw['Name'];
   const assignment = raw.assignment ?? raw.asst ?? raw.title ?? raw['Assignment'];
   let score = raw.score ?? raw.Score ?? raw.points ?? raw.pointsEarned;
