@@ -1,6 +1,0 @@
-git init
-git add .
-git commit -m "Initial commit — client-only Student Level Up webapp"
-git branch -M main
-git remote add origin https://github.com/Papagarn92/Studentlevelup.git
-git push -u origin main
